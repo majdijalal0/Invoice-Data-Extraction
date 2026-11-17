@@ -3,11 +3,12 @@ import os
 import torch
 import evaluate
 from transformers import LayoutLMv3ForTokenClassification, TrainingArguments, Trainer
-from data import get_datasets, get_id2label
+from transformers.trainer_utils import get_last_checkpoint
+from data import get_datasets, get_id2label,processor
 
 MODEL_NAME = "microsoft/layoutlmv3-base"
 
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "checkpoints/layoutlmv3-cord")
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "checkpoints/layoutlmv3-sroie")
 
 id2label = get_id2label()
 label2id = {v: k for k, v in id2label.items()}
@@ -44,9 +45,9 @@ def main():
         output_dir=OUTPUT_DIR,
         num_train_epochs=10,
         per_device_train_batch_size=4,
-        per_device_eval_batch_size=4,
+        per_device_eval_batch_size=8,
         learning_rate=3e-5,
-        warmup_ratio=0.1,
+        warmup_steps=0.1,
         weight_decay=0.01,
         eval_strategy="epoch",
         save_strategy="epoch",
@@ -57,6 +58,7 @@ def main():
         fp16=torch.cuda.is_available(),
         dataloader_num_workers=0,
         report_to="none",
+        seed=42
     )
 
 
@@ -68,13 +70,16 @@ def main():
         compute_metrics=compute_metrics,
     )
 
+    last = get_last_checkpoint(OUTPUT_DIR) if os.path.isdir(OUTPUT_DIR) else None
+
     #Train the model
-    trainer.train()
+    trainer.train(resume_from_checkpoint=last)
 
     #Evaluate the model on test set
     print(trainer.evaluate(test_ds, metric_key_prefix="test"))
     #Save the model
     trainer.save_model(f"{OUTPUT_DIR}/best")
+    processor.save_pretrained(f"{OUTPUT_DIR}/best") 
 
 if __name__ == "__main__":
     main()

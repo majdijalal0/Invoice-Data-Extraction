@@ -81,6 +81,7 @@ def get_datasets():
 
 if __name__ == "__main__":
     ds = load_invoice_dataset()
-    print(ds.keys())
-    
+    example = ds["train"][0]
+    refactored_image = np.array(example["image"], dtype=np.uint8).transpose(1, 2, 0)
+    print(refactored_image.shape)
     
