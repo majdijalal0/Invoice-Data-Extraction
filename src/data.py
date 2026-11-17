@@ -41,7 +41,7 @@ def preprocess_example(example):
         padding="max_length",
         max_length=256,
         truncation=True,
-        return_tensors="pt",
+        return_tensors="np",
     )
     return {k: v.squeeze(0) for k, v in encoding.items()}
 
@@ -81,7 +81,11 @@ def get_datasets():
 
 if __name__ == "__main__":
     ds = load_invoice_dataset()
-    print(ds["train"].features["labels"])
-    print(sorted({l for ex in ds["train"] for l in ex["labels"]}))
+    small = ds["train"].select(range(20)).map(
+    preprocess_example,
+    remove_columns=ds["train"].column_names,
+    features=features,
+)
+    print(small)
     
     
