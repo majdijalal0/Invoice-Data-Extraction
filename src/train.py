@@ -1,11 +1,13 @@
 import numpy as np
+import os
 import torch
 import evaluate
 from transformers import LayoutLMv3ForTokenClassification, TrainingArguments, Trainer
 from data import get_datasets, get_label_names
 
 MODEL_NAME = "microsoft/layoutlmv3-base"
-OUTPUT_DIR = "checkpoints/layoutlmv3-cord"
+
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "checkpoints/layoutlmv3-cord")
 
 label_names = get_label_names()
 id2label = dict(enumerate(label_names))

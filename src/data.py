@@ -42,8 +42,7 @@ def preprocess_example(example):
     return {k: v.squeeze(0) for k, v in encoding.items()}
 
 #The directory where we're saving our processed sets
-PROCESSED_DIR = "data/processed"
-
+PROCESSED_DIR = os.environ.get("PROCESSED_DIR", "data/processed")
 #Defines the features we're going to use for our datasets
 features = Features({
     "input_ids": Sequence(Value("int64")),
