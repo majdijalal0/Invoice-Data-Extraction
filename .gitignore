@@ -1,4 +1,42 @@
-ICDAR-2019-SROIE/
-tessdata/
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
 __pycache__/
+*.py[cod]
+*.egg-info/
+
+# Processed data and raw datasets
+data/processed/
+data/raw/
+*.arrow
+
+# Training outputs
+checkpoints/
+runs/
+logs/
+wandb/
+outputs/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Hugging Face cache
+.cache/
+huggingface/
+
+# Notebooks
 .ipynb_checkpoints/
+
+# Secrets
+.env
+*.key
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+# Integer IDs → label names
+id2label:
+  0: COMPANY
+  1: DATE
+  2: ADDRESS
+  3: TOTAL
+  4: O
+
+# Business field → which label IDs belong to it
+business_fields:
+  seller: [0]      # COMPANY
+  date:   [1]      # DATE
+  total:  [3]      # TOTAL
+  # ADDRESS (2) is extracted but not surfaced in the product
+
+business_rules: []
