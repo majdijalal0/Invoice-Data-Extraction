@@ -66,7 +66,7 @@ def get_datasets():
     else:
         ds = load_invoice_dataset()
         splits = {}
-        for name, split in [("train", "train"), ("val", "validation"), ("test", "test")]:
+        for name, split in [("train", "train"), ("val", "val"), ("test", "test")]:
             splits[name] = ds[split].map(
                 preprocess_example,
                 remove_columns=ds[split].column_names,
@@ -81,11 +81,6 @@ def get_datasets():
 
 if __name__ == "__main__":
     ds = load_invoice_dataset()
-    small = ds["train"].select(range(20)).map(
-    preprocess_example,
-    remove_columns=ds["train"].column_names,
-    features=features,
-)
-    print(small)
+    print(ds.keys())
     
     
