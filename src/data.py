@@ -7,6 +7,8 @@ from datasets import load_dataset,load_from_disk,Features, Sequence, Value, Arra
 import numpy as np
 import os
 from transformers import LayoutLMv3Processor, LayoutLMv3TokenizerFast
+import yaml
+from pathlib import Path
 
 #Name of the dataset on hugging face
 DATASET_NAME = "Ssunbell/SROIE_layoutlmv2_sequence"
@@ -16,10 +18,12 @@ def load_invoice_dataset():
     ds = load_dataset(DATASET_NAME)
     return ds
 
-def get_label_names():
-    """Returns the different labels we have"""
-    ds = load_invoice_dataset()
-    return ds["train"].features["labels"].feature.names
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "fields.yaml"
+
+def get_id2label():
+    with open(CONFIG_PATH, encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    return {int(k): v for k, v in cfg["id2label"].items()}
 
 tokenizer = LayoutLMv3TokenizerFast.from_pretrained("microsoft/layoutlmv3-base")
 processor = LayoutLMv3Processor.from_pretrained("microsoft/layoutlmv3-base",tokenizer=tokenizer,apply_ocr=False)
@@ -77,7 +81,7 @@ def get_datasets():
 
 if __name__ == "__main__":
     ds = load_invoice_dataset()
-    sample = preprocess_example(ds["train"][0])
-
+    print(ds["train"].features["labels"])
+    print(sorted({l for ex in ds["train"] for l in ex["labels"]}))
     
     

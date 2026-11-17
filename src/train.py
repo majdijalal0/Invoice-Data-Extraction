@@ -3,15 +3,18 @@ import os
 import torch
 import evaluate
 from transformers import LayoutLMv3ForTokenClassification, TrainingArguments, Trainer
-from data import get_datasets, get_label_names
+from data import get_datasets, get_id2label
 
 MODEL_NAME = "microsoft/layoutlmv3-base"
 
 OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "checkpoints/layoutlmv3-cord")
 
-label_names = get_label_names()
-id2label = dict(enumerate(label_names))
+id2label = get_id2label()
 label2id = {v: k for k, v in id2label.items()}
+
+def to_tag(name):
+    # seqeval needs BIO-style prefixes to group tokens into entities
+    return name if name == "O" else f"I-{name}"
 
 seqeval = evaluate.load("seqeval")
 
@@ -20,8 +23,8 @@ def compute_metrics(eval_pred):
     preds = np.argmax(logits, axis=-1)
     true_preds, true_labels = [], []
     for p_row, l_row in zip(preds, labels):
-        true_preds.append([id2label[p] for p, l in zip(p_row, l_row) if l != -100])
-        true_labels.append([id2label[l] for l in l_row if l != -100])
+        true_preds.append([to_tag(id2label[p]) for p, l in zip(p_row, l_row) if l != -100])
+        true_labels.append([to_tag(id2label[l]) for l in l_row if l != -100])
     r = seqeval.compute(predictions=true_preds, references=true_labels)
     return {
         "precision": r["overall_precision"],
