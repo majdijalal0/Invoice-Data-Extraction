@@ -47,7 +47,7 @@ def main():
     per_device_eval_batch_size=16,
     fp16=torch.cuda.is_available(),
     learning_rate=3e-5,
-    warmup_ratio=0.1,
+    warmup_steps=0.1,
     weight_decay=0.01,
 
     eval_strategy="epoch",
