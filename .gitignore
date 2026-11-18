@@ -1,42 +1,33 @@
-# Virtual environment
+# Python environments
 .venv/
 venv/
-env/
-
-# Python cache
 __pycache__/
 *.py[cod]
-*.egg-info/
 
-# Processed data and raw datasets
-data/processed/
-data/raw/
-*.arrow
+# Environment variables
+.env
+.env.*
+!.env.example
 
-# Training outputs
-checkpoints/
-runs/
-logs/
-wandb/
-outputs/
-*.pt
-*.pth
-*.bin
-*.safetensors
-
-# Hugging Face cache
-.cache/
-huggingface/
-
-# Notebooks
+# Jupyter
 .ipynb_checkpoints/
 
-# Secrets
-.env
-*.key
+# Datasets and processed data
+data/
 
-# Editor / OS files
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+# Manual review images
+manual_review_images/
+
+# Model weights and checkpoints
+models/
+checkpoints/
+
+# Generated results
+results/
+
+# Generated audit files
+total_audit_candidates.csv
+total_audit_documents.csv
+
+#Testing file
+scratch_rest.py

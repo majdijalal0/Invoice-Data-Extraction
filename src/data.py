@@ -21,12 +21,19 @@ def load_invoice_dataset():
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "fields.yaml"
 
 def get_id2label():
+    """Maps the id to label"""
     with open(CONFIG_PATH, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
     return {int(k): v for k, v in cfg["id2label"].items()}
 
+def to_tag(name):
+    #seqeval needs BIO-style prefixes to group tokens into entities
+    return name if name == "O" else f"I-{name}"
+
 tokenizer = LayoutLMv3TokenizerFast.from_pretrained("microsoft/layoutlmv3-base")
 processor = LayoutLMv3Processor.from_pretrained("microsoft/layoutlmv3-base",tokenizer=tokenizer,apply_ocr=False)
+
+MAX_LENGTH = 512 #Number of tokens
 
 def preprocess_example(example):
     """
@@ -39,19 +46,19 @@ def preprocess_example(example):
         boxes=example["boxes"],
         word_labels=example["labels"],
         padding="max_length",
-        max_length=256,
+        max_length=MAX_LENGTH,
         truncation=True,
         return_tensors="np",
     )
     return {k: v.squeeze(0) for k, v in encoding.items()}
 
 #The directory where we're saving our processed sets
-PROCESSED_DIR = os.environ.get("PROCESSED_DIR", "data/processed")
+PROCESSED_DIR = os.environ.get("PROCESSED_DIR","data/processed_512")
 #Defines the features we're going to use for our datasets
 features = Features({
     "input_ids": Sequence(Value("int64")),
     "attention_mask": Sequence(Value("int64")),
-    "bbox": Array2D(dtype="int64", shape=(256, 4)),
+    "bbox": Array2D(dtype="int64", shape=(MAX_LENGTH, 4)),
     "labels": Sequence(Value("int64")),
     "pixel_values": Array3D(dtype="float32", shape=(3, 224, 224)),
 })

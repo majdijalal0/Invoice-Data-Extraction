@@ -4,18 +4,14 @@ import torch
 import evaluate
 from transformers import LayoutLMv3ForTokenClassification, TrainingArguments, Trainer
 from transformers.trainer_utils import get_last_checkpoint
-from data import get_datasets, get_id2label,processor
+from .data import get_datasets, get_id2label,processor,to_tag
 
 MODEL_NAME = "microsoft/layoutlmv3-base"
 
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "checkpoints/layoutlmv3-sroie")
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR","checkpoints/layoutlmv3-sroie-512")
 
 id2label = get_id2label()
 label2id = {v: k for k, v in id2label.items()}
-
-def to_tag(name):
-    # seqeval needs BIO-style prefixes to group tokens into entities
-    return name if name == "O" else f"I-{name}"
 
 seqeval = evaluate.load("seqeval")
 
@@ -35,6 +31,7 @@ def compute_metrics(eval_pred):
     }
 
 def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     train_ds, val_ds, test_ds = get_datasets() #Load sets
 
     #Define the model
@@ -42,23 +39,28 @@ def main():
 
     #Define the arguments and hyperparameters of the model
     args = TrainingArguments(
-        output_dir=OUTPUT_DIR,
-        num_train_epochs=10,
-        per_device_train_batch_size=4,
-        per_device_eval_batch_size=8,
-        learning_rate=3e-5,
-        warmup_steps=0.1,
-        weight_decay=0.01,
-        eval_strategy="epoch",
-        save_strategy="epoch",
-        save_total_limit=2,
-        load_best_model_at_end=True,
-        metric_for_best_model="f1",
-        logging_steps=20,
-        fp16=torch.cuda.is_available(),
-        dataloader_num_workers=0,
-        report_to="none",
-        seed=42
+    output_dir=OUTPUT_DIR,
+    num_train_epochs=10,
+
+    per_device_train_batch_size=8,
+    gradient_accumulation_steps=1,
+    per_device_eval_batch_size=16,
+    fp16=torch.cuda.is_available(),
+    learning_rate=3e-5,
+    warmup_ratio=0.1,
+    weight_decay=0.01,
+
+    eval_strategy="epoch",
+    save_strategy="epoch",
+    save_total_limit=2,
+    load_best_model_at_end=True,
+    metric_for_best_model="f1",
+
+    logging_steps=20,
+
+    dataloader_num_workers=2,
+    report_to="none",
+    seed=42
     )
 
 
